@@ -18,3 +18,4 @@ def run_elevator_simulation(num_floors, start_floors, requests):
         print(f"\nКоманды для лифта {i+1}:")
         print("\n".join(commands))
         print(f"Количество перемещений: {elevators[i].moves}")
+        
