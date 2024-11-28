@@ -1,0 +1,126 @@
+lexer grammar SpaceBattleLexer;
+
+GAME         : 'game';
+USER         : 'my_object';
+START        : 'start';
+ENEMY        : 'game_ship';
+DIRECTION    : 'forward' | 'back' | 'left' | 'right';
+FIRE         : 'fire';
+SHIELD       : 'shield';
+REFUEL       : 'refueling';
+ASTEROID     : 'asteroid';
+TARGET       : 'enemy_ship';
+ROTATION     : 'rotate';
+
+TIME         : 'time';
+SECONDS      : 'seconds';
+PAUSE        : 'pause';
+RESUME       : 'resume';
+
+ON           : 'on';
+OFF          : 'off';
+
+TRUE         : 'true';
+FALSE        : 'false';
+ID           : [a-zA-Z_][a-zA-Z_0-9]*;
+NUMBER       : [0-9]+;
+
+
+GREATER         : '>';
+LESS         : '<';
+EQ           : '==';
+UNEQ         : '!=';
+OPEN_PAR     : '(';
+CLOSE_PAR    : ')';
+
+
+PLUS         : '+';
+MINUS        : '-';
+MULT         : '*';
+DIV          : '/';
+AND          : 'and';
+OR           : 'or';
+NOT          : 'not';
+IF           : 'if';
+
+WS           : [ \t\r\n]+ -> skip;
+
+parser grammar SpaceBattleParser;
+
+options { tokenVocab=SpaceBattleLexer; } 
+
+program     : command+ ;
+
+command      : moveCommand
+             | expression
+             | gameControlCommand
+             | gameTimeCommand
+             | startCommand
+             | startGameCommand
+             | rotateCommand
+             | fireCommand
+             | shieldCommand
+             | fireGameCommand
+             | refuelCommand
+             | ifCommand
+             ;
+
+moveCommand  : USER DIRECTION;
+
+gameTimeCommand : GAME TIME NUMBER (SECONDS)?;
+
+gameControlCommand : GAME (PAUSE | RESUME);
+
+startGameCommand  : GAME START;
+
+startCommand  : USER START;
+
+rotateCommand  : USER ROTATION (PLUS | MINUS) (NUMBER | expression);                  
+
+fireCommand  : USER FIRE (ON | OFF) (ASTEROID | TARGET);
+
+shieldCommand  : USER SHIELD (ON | OFF);
+
+fireGameCommand  : ENEMY FIRE (ON | OFF) USER;
+
+refuelCommand  : USER REFUEL;
+
+ifCommand      : IF OPEN_PAR logicalExpression CLOSE_PAR command; 
+
+expression      : logicalExpression ;
+
+logicalExpression
+                : comparativeExpression((AND | OR) comparativeExpression)* ;
+
+comparativeExpression
+                : arithmeticExpression ((LESS | GREATER | EQ | UNEQ) arithmeticExpression)?            
+                ;
+
+arithmeticExpression
+                : term ((PLUS | MINUS) term)*
+                ;
+
+term            : factor ((MULT | DIV) factor)* ;
+
+factor          : NUMBER
+                | ID
+                | TRUE
+                | FALSE
+                | OPEN_PAR expression CLOSE_PAR
+                ;
+
+game time 300 seconds
+game start
+
+my_object forward
+my_object rotate +(3 + 5) * 2
+
+my_object fire on enemy_ship
+
+if (fuel_level < 10) my_object refueling
+
+my_object shield on
+my_object forward and my_object rotate -45
+
+game pause
+game resume
